@@ -7,26 +7,23 @@ from pprint import pformat
 from anytree import NodeMixin, RenderTree
 
 
-class BaseTmStructure(object):
-    """A TM structure"""
-    def __init__(self, position, length):
-        self.position = position
-        self.length = length
+class BaseDecommutationPlan(object):
+
+    def __init__(self, **args):
+        self.data = args
 
 
-class TmStructure(BaseTmStructure, NodeMixin):
+class DecommutationPlan(BaseDecommutationPlan, NodeMixin):
 
-    def __init__(self, name, parent=None,
-                 position=None,
-                 length=None):
-        super(TmStructure, self).__init__(position=position,
-                                          length=length)
-        self.name = name
+    def __init__(self, mnemonic, parent, **args):
+        super(DecommutationPlan, self).__init__(**args)
+        self.mnemonic = mnemonic
         self.parent = parent
+        self.data = args
 
     def __str__(self):
         ret = u''.encode('utf-8')
         # Note: it is also possible to force ascii with style=AsciiStyle()
         for pre, _, node in RenderTree(self):
-            ret += u'{}{}\n'.format(pre, node.name).encode('utf-8')
+            ret += u'{}{} {}\n'.format(pre, node.mnemonic, node.data).encode('utf-8')
         return ret
