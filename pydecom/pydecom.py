@@ -19,7 +19,6 @@ class DecommutationPlan(BaseDecommutationPlan, NodeMixin):
         super(DecommutationPlan, self).__init__(**args)
         self.mnemonic = mnemonic
         self.parent = parent
-        self.data = args
 
     def __str__(self):
         ret = u''.encode('utf-8')
