@@ -7,16 +7,19 @@ from pprint import pformat
 from anytree import NodeMixin, RenderTree
 
 
-class BaseDecommutationPlan(object):
+class BaseDecommutationNode(object):
 
     def __init__(self, **args):
         self.data = args
 
+    def update(self, **args):
+        self.data.update(args)
 
-class DecommutationPlan(BaseDecommutationPlan, NodeMixin):
+
+class DecommutationNode(BaseDecommutationNode, NodeMixin):
 
     def __init__(self, mnemonic, parent, **args):
-        super(DecommutationPlan, self).__init__(**args)
+        super(DecommutationNode, self).__init__(**args)
         self.mnemonic = mnemonic
         self.parent = parent
 
