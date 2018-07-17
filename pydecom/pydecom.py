@@ -24,5 +24,6 @@ class DecommutationPlan(BaseDecommutationPlan, NodeMixin):
         ret = u''.encode('utf-8')
         # Note: it is also possible to force ascii with style=AsciiStyle()
         for pre, _, node in RenderTree(self):
-            ret += u'{}{} {}\n'.format(pre, node.mnemonic, node.data).encode('utf-8')
+            # ret += u'{}{} {}\n'.format(pre, node.mnemonic, node.data).encode('utf-8')
+            ret += u'{}{}\n'.format(pre, node.mnemonic).encode('utf-8')
         return ret
