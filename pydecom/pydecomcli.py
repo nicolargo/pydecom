@@ -17,6 +17,7 @@ from anytree import RenderTree
 import xml.etree.ElementTree as ET
 import glob
 import os
+import sys
 
 # Global variable for logger
 logging.basicConfig(format='%(asctime)-15s %(message)s')
@@ -26,9 +27,8 @@ logger.setLevel(logging.INFO)
 # Others global variables
 attrs_list_to_remove = ['mnemonic', 'parent']
 
-def load_DecommutationPlan(xml_tree):
+def _load(xml_tree, type_list):
     ret = {}
-    type_list = ['Table', 'Structure', 'Parameter']
     for i in xml_tree.getroot().iter():
         decom_type = None
         for t in type_list:
@@ -48,42 +48,47 @@ def load_DecommutationPlan(xml_tree):
             # Add the new TM Structure to the map_mnemo_node dict
             # The tree (parent argument) will be defined after all the files loading step
             all_attrs = {k: v for k, v in all_attrs.iteritems() if k not in attrs_list_to_remove}
-            ret[i.attrib['mnemonic']] = DecommutationNode(i.attrib['mnemonic'],
-                                                          parent=None,
-                                                          **all_attrs)
+            key = i.attrib['mnemonic']
+            ret[key] = DecommutationNode(i.attrib['mnemonic'],
+                                         parent=None,
+                                         **all_attrs)
     return ret
 
+def load_DecommutationPlan(xml_tree):
+    return _load(xml_tree, ['Table', 'Structure', 'Parameter'])
+
+def load_TelemetryParameters(xml_tree):
+    return _load(xml_tree, ['NumericParameter', 'StatusParameter', 'MotherParameter', 'HexaParameter'])
 
 def build_DecommutationPlan(tree):
-    for k, v in tree.iteritems():
+    for _, v in tree.iteritems():
         if v.data['parent_name'] in tree:
             v.parent = tree[v.data['parent_name']]
     return tree
 
-
 def main():
+    decom_tree = {}
+    trees = []
+
+    # Load SDB
     sdb_path = '/data/sdb/ONEO1S/'
     tm_file_list = glob.glob(os.path.join(sdb_path, 'tmfiles', '*.xml'))
-
-    trees = [ET.parse(tree) for tree in tm_file_list]
-
-    decom_tree = {}
-
-    # Load files
+    # xml_item_list = ['DecommutationPlan', 'TelemetryParameters']
+    xml_item_list = ['DecommutationPlan']
     for tm_file in tm_file_list:
+        logger.info('Load SDB file {}'.format(tm_file))
         tree = ET.parse(tm_file)
-        if tree.getroot().tag.endswith('DecommutationPlan'):
-            logger.info('Load DecommutationPlan from file {}'.format(tm_file))
-            decom_tree.update(load_DecommutationPlan(tree))
+        for xml_item in xml_item_list:
+            if tree.getroot().tag.endswith(xml_item):
+                logger.info('Load {} from file {}'.format(xml_item, tm_file))
+                decom_tree.update(getattr(sys.modules[__name__], 'load_' + xml_item)(tree))
 
     # Build decommutation tree
+    logger.info('Build decommutation tree')
     decom_tree = build_DecommutationPlan(decom_tree)
 
     # Test
-    # for k, v in decom_tree.iteritems():
-    #     print(k, v.data, v.parent)
     print(decom_tree['AOCACINTMST00001G'])
-
 
 
 if __name__ == '__main__':
