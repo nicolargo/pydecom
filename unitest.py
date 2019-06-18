@@ -5,7 +5,7 @@
 #
 
 import unittest
-from pydecom import DecommutationPlan
+import pydecom
 
 
 class TestPydecom(unittest.TestCase):
@@ -13,11 +13,11 @@ class TestPydecom(unittest.TestCase):
 
     def test_000_structure(self):
         print('=' * 80)
-        s1 = DecommutationPlan('TOP', None)
-        s2 = DecommutationPlan('FIRST', s1)
-        s3 = DecommutationPlan('SECOND', s2)
-        s4 = DecommutationPlan('THIRD', s2)
-        s5 = DecommutationPlan('LAST', s1)
+        s1 = pydecom.DecommutationNode('TOP', None)
+        s2 = pydecom.DecommutationNode('FIRST', s1)
+        s3 = pydecom.DecommutationNode('SECOND', s2)
+        s4 = pydecom.DecommutationNode('THIRD', s2)
+        s5 = pydecom.DecommutationNode('LAST', s1)
         print(s1)
 
 
