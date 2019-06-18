@@ -46,9 +46,11 @@ def _load(xml_tree, type_list):
             else:
                 all_attrs['parent_name'] = None
             # Add the new TM Structure to the map_mnemo_node dict
-            # The tree (parent argument) will be defined after all the files loading step
+            # Note: The tree (parent argument) will be defined after all the files loading step
             all_attrs = {k: v for k, v in all_attrs.iteritems() if k not in attrs_list_to_remove}
             key = i.attrib['mnemonic']
+            # TODO: add subtree management (get LongDescription, Alias...)
+            # ...
             ret[key] = DecommutationNode(i.attrib['mnemonic'],
                                          parent=None,
                                          **all_attrs)
@@ -73,10 +75,10 @@ def main():
     # Load SDB
     sdb_path = '/data/sdb/ONEO1S/'
     tm_file_list = glob.glob(os.path.join(sdb_path, 'tmfiles', '*.xml'))
-    # xml_item_list = ['DecommutationPlan', 'TelemetryParameters']
-    xml_item_list = ['DecommutationPlan']
+    xml_item_list = ['DecommutationPlan', 'TelemetryParameters']
+    #xml_item_list = ['DecommutationPlan']
     for tm_file in tm_file_list:
-        logger.info('Load SDB file {}'.format(tm_file))
+        logger.debug('Load SDB file {}'.format(tm_file))
         tree = ET.parse(tm_file)
         for xml_item in xml_item_list:
             if tree.getroot().tag.endswith(xml_item):
@@ -87,8 +89,22 @@ def main():
     logger.info('Build decommutation tree')
     decom_tree = build_DecommutationPlan(decom_tree)
 
-    # Test
-    print(decom_tree['AOCACINTMST00001G'])
+    # Tests
+
+    # Top level structure
+    #print(decom_tree['AOCACINTMST00001G'])
+
+    # On simple TM
+    #  <NumericParameter Mnemonic="AOCACSWE005BQG" Nature="G" ShortDescription="GYR_1_AJFM_TMP_R0" ParamId="2132673023" ReadOnly="true">
+    #    <LongDescription>GYR1 R0 coefficient for sensor temperature computation from voltage measurement   C  </LongDescription> 
+    #    <AliasSet>
+    #      <Alias Alias="AO_AJ_FM_GYR1_TEMP_R0_COEF" NameSpace="OBSW"/>
+    #      <Alias Alias="GYR_1_AJFM_TMP_R0" NameSpace="NEOSAT"/>
+    #    </AliasSet>
+    #    <Length>64</Length>
+    #    <BinaryConversion>IF</BinaryConversion>
+    #  </NumericParameter>
+    print(decom_tree['AOCACSWE005BQG'])
 
 
 if __name__ == '__main__':
