@@ -32,8 +32,13 @@ def _load(xml_tree, type_list):
     for i in xml_tree.getroot().iter():
         decom_type = None
         for t in type_list:
-            if i.tag.endswith(t):
+            if i.tag.split('}')[1] == t:
                 decom_type = t
+
+        # print("="*80)
+        # print(i.tag)
+        # print(i.attrib)
+        # print(decom_type)
 
         if decom_type is not None:
             # Lower all keys
@@ -50,7 +55,6 @@ def _load(xml_tree, type_list):
             all_attrs = {k: v for k, v in all_attrs.iteritems() if k not in attrs_list_to_remove}
             key = i.attrib['mnemonic']
             # TODO: add subtree management (get LongDescription, Alias...)
-            # ...
             ret[key] = DecommutationNode(i.attrib['mnemonic'],
                                          parent=None,
                                          **all_attrs)
@@ -96,7 +100,7 @@ def main():
 
     # On simple TM
     #  <NumericParameter Mnemonic="AOCACSWE005BQG" Nature="G" ShortDescription="GYR_1_AJFM_TMP_R0" ParamId="2132673023" ReadOnly="true">
-    #    <LongDescription>GYR1 R0 coefficient for sensor temperature computation from voltage measurement   C  </LongDescription> 
+    #    <LongDescription>GYR1 R0 coefficient for sensor temperature computation from voltage measurement   C  </LongDescription>
     #    <AliasSet>
     #      <Alias Alias="AO_AJ_FM_GYR1_TEMP_R0_COEF" NameSpace="OBSW"/>
     #      <Alias Alias="GYR_1_AJFM_TMP_R0" NameSpace="NEOSAT"/>
